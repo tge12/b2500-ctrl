@@ -11,15 +11,16 @@ use HTTP::Tiny;
 my $debug = 1;
 my $timeout = 10;
 
+my $mac = '************';  # TODO
 my $mqttServer = 'localhost';
-my $mqttUser = 'speicher';
-my $mqttPw = 'gespeichert';
-my $mqttTopicSub = 'hame_energy/HMJ-2/device/b42f0398b36a/ctrl';
-my $mqttTopicPub = 'hame_energy/HMJ-2/App/b42f0398b36a/ctrl';
+my $mqttUser = '********'; # TODO
+my $mqttPw = '*******'; # TODO
+my $mqttTopicSub = "hame_energy/HMJ-2/device/${mac}/ctrl";
+my $mqttTopicPub = "hame_energy/HMJ-2/App/${mac}/ctrl";
 my $mqttCmd = 'cd=01';
 
-my $vzUuidWR = 'c9671a60-1808-11ef-8039-4ba60d7468c1'; # WR
-my $vzBaseUrl = "http://chives:8000/data/${vzUuidWR}.json?operation=add";
+my $vzUuidWR = '************************************'; # TODO
+my $vzBaseUrl = "http://*************/data/${vzUuidWR}.json?operation=add"; # TODO
 
 # w1/2 - pv in power W
 # pe - batt %
