@@ -7,3 +7,5 @@ consumption - from this calculate the actual energy demand and adjust the (time-
 
 The b2500d_mqtt.pl script can be started from a vzlogger (or whichever way else) and will request a status string from the storage via MQTT. The extracted metric values will be sent to the VZ server.
 At the same time the b2500d_ctrl.pl script just subsribes to the same status responses and consumes them as described above.
+
+Update: If the script stops working after communication problems (I had HTTP 599 timeout errors when calling VZ, then obviously also the MQTT connection is impacted), apply this patch: https://github.com/Juerd/Net-MQTT-Simple/issues/29
