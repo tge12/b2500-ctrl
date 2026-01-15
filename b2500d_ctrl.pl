@@ -18,6 +18,7 @@ use Net::MQTT::Simple;
 use Fcntl ':flock';
 use HTTP::Tiny;
 use JSON::PP;
+use Time::Piece;
 
 my $debug = 1;
 my $interval = 10;
@@ -44,6 +45,15 @@ my $hysteresis = 10;
 my $pMax = 600;
 my $pMin = 40;
 # my $pMin = 80;
+
+# Set Discharge depth based on date
+# Date format 'MM-DD'
+# $dodWinter 60 == 40 % SOC
+# $dodSummer 90 == 10 % SOC
+my $startWinter = '10-31';
+my $startSummer = '03-01';
+my $dodWinter = 60;
+my $dodSummer = 90;
 
 my $mac = '************'; # TODO
 
@@ -107,6 +117,20 @@ my $mqtt = Net::MQTT::Simple->new($mqttServer);
 print $logFh localtime . " Creating HTTP client $mqttServer ...\n" if $debug;
 my $vz = HTTP::Tiny->new();
 my $json = JSON::PP->new->ascii->pretty->allow_nonref;
+
+# -------------------------------
+# Function to calc discharge Limit
+# -------------------------------
+
+sub calc_dischargeLimit()
+{
+  my $today = localtime;
+  my $year = $today->year;
+  my $w = Time::Piece->strptime("$year-$startWinter", "%Y-%m-%d");
+  my $s = Time::Piece->strptime("$year-$startSummer", "%Y-%m-%d");
+
+  return ($today >= $w || $today < $s) ? $dodWinter : $dodSummer;
+}
 
 # -------------------------------
 # Function getting consumption from VZ
@@ -194,6 +218,13 @@ sub handleValues($$)
     # Happens sometimes - ignore this
     print $logFh localtime . " Consumption unknown: 0. No change.\n" if $debug;
     return;
+  }
+
+  # set discharge limit based on date
+  my $cDischargeLimit = calc_dischargeLimit();
+  if ($dischargeLimit != $cDischargeLimit) {
+    print $logFh localtime . " Set discharge limit to $cDischargeLimit \n" if $debug;
+    sendCommand("cd=05, md=${cDischargeLimit}");
   }
 
   if($dischargeIsAuto)
